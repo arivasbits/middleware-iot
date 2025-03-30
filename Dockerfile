@@ -9,4 +9,5 @@ COPY ./app /app
 
 EXPOSE 5000
 
-CMD ["python", "main.py"]
+CMD ["python", "auto_sender.py"]
+
