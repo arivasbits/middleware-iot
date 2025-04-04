@@ -6,8 +6,8 @@ import os
 app = Flask(__name__)
 
 # Variables de entorno
-COSMOS_URI = os.getenv("COSMOS_URI")
-COSMOS_KEY = os.getenv("COSMOS_KEY")
+COSMOS_URI = os.getenv("COSMOS_URI", "https://TU-URI.documents.azure.com:443/")
+COSMOS_KEY = os.getenv("COSMOS_KEY", "TU-CLAVE-REAL")
 DATABASE_NAME = "iotmetrics-itca-sa"
 CONTAINER_NAME = "telemetria"
 
