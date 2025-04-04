@@ -1,7 +1,25 @@
-🔌 Middleware IoT para Simulación y Registro de Métricas Eléctricas
-Este proyecto simula métricas de sensores eléctricos de un sistema industrial y las envía automáticamente a Azure Cosmos DB. Incluye simulación de fallas eléctricas comunes y registro paralelo de logs de fallas, que pueden ser usados posteriormente en un sistema de detección con Machine Learning.
+# ⚙️ Middleware IoT – Simulación de Métricas con Fallas para Azure Cosmos DB
 
-🧰 Tecnologías Utilizadas
+Este proyecto es un middleware en Python que simula métricas eléctricas provenientes de un sistema IoT (como LabVIEW) y las envía automáticamente a Azure Cosmos DB. Cada cierto tiempo, también se genera una falla eléctrica aleatoria para alimentar datasets de Machine Learning. Las fallas se registran en un contenedor separado.
+
+---
+
+## 📁 Estructura del Proyecto
+
+```bash
+middleware-iot/
+├── app/
+│   ├── auto_sender.py       # Envío automático de métricas a Cosmos DB
+│   ├── simulator.py         # Simulación de métricas con fallas aleatorias
+│   ├── fault_logger.py      # Registro de logs de fallas en otro contenedor
+│   └── main.py              # Punto de entrada principal (opcional)
+├── Dockerfile               # Imagen para despliegue opcional en contenedor
+├── .env.example             # Variables de entorno (plantilla)
+├── .gitignore               # Exclusión de archivos innecesarios
+├── README.md                # Documentación del proyecto
+└── requirements.txt         # Dependencias del proyecto
+
+🚀 Tecnologías Utilizadas
 Python 3.10+
 
 Azure Cosmos DB
@@ -10,56 +28,92 @@ SDK azure-cosmos
 
 Docker (opcional para despliegue)
 
-Variables de entorno con os.getenv
+dotenv para manejo de variables de entorno
 
-Formato JSON y estructura jerárquica para datos de sensores
+⚙️ Funcionalidad Principal
+✅ Generación de métricas IoT (voltajes, corrientes, potencias, etc.)
 
-UUID para trazabilidad (id, messageId)
+⚡ Simulación automática de fallas eléctricas (caída de fase, FP bajo, brownout, etc.)
 
-📁 Estructura del Proyecto
+📤 Envío a contenedor de métricas en Azure Cosmos DB
 
-middleware-iot/
-├── auto_sender.py        --> Envío automático de métricas a Cosmos DB
-├── simulator.py          --> Simulación de métricas con fallas aleatorias
-├── fault_logger.py       --> Registro de logs de fallas en otro contenedor
-├── Dockerfile            --> Imagen para despliegue opcional
-├── .env.example          --> Variables de entorno (plantilla)
-└── README.md             --> Documentación del proyecto
+🛑 Registro de fallas en contenedor separado como dataset etiquetado
 
-⚙️ Configuración de Variables de Entorno
-Crea un archivo .env (o usa .env.example como base) con el siguiente contenido:
+📦 Desplegable como imagen Docker
 
-COSMOS_URI=https://<tu-cuenta>.documents.azure.com:443/
-COSMOS_KEY=XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-DATABASE_NAME=NombreDeTuBD
-METRICS_CONTAINER=NombreContenedorMétricas
-FAULTS_CONTAINER=NombreContenedorFallas
+{
+  "id": "c24a1a6e-3abc-4ea1-a6be-843c9cdaab6b",
+  "deviceId": "LABVIEW_DEVICE_001",
+  "timestamp": "2025-04-03T23:37:02.438603+00:00",
+  "status": "OK",
+  "metrics": [
+    {"name": "Van", "value": 122.4, "unit": "V", "group": "voltages"},
+    {"name": "Ia", "value": 7.23, "unit": "A", "group": "currents"},
+    ...
+  ]
+}
 
-🚀 Cómo Ejecutar
-Para ejecutar el envío automático de métricas:
-python auto_sender.py
+📊 Consulta de Fallas desde Azure Cosmos DB
+Consulta básica en Data Explorer para detectar métricas anómalas:
 
-Cada minuto se genera una métrica, y cada hora (o cada 60 segundos en modo pruebas) se inyecta una falla simulada y se registra un log asociado en el contenedor de fallas.
+SELECT *
+FROM c
+WHERE EXISTS (
+    SELECT VALUE m
+    FROM m IN c.metrics
+    WHERE
+        (m.name = "Vcn" AND m.value = 0) OR
+        (m.name = "Van" AND m.value > 130) OR
+        (m.name = "Vbn" AND m.value < 105) OR
+        (m.name = "voltage_imbalance" AND m.value > 7) OR
+        (m.name = "Ia" AND m.value > 12) OR
+        (m.name = "FP" AND m.value < 0.85)
+)
+📂 Uso del Proyecto
+Clonar el repositorio
 
-📦 Despliegue con Docker (opcional)
-Puedes construir y correr la imagen con Docker:
+bash
+Copiar
+Editar
+git clone https://github.com/arivasbits/middleware-iot.git
+cd middleware-iot
+Crear archivo .env basado en el .env.example
+Reemplaza con tus credenciales de Azure Cosmos DB.
 
+Instalar dependencias
 
-# Construir la imagen
+bash
+Copiar
+Editar
+pip install -r requirements.txt
+Ejecutar el envío automático
+
+bash
+Copiar
+Editar
+python app/auto_sender.py
+🐳 Docker (Opcional)
+Para ejecutar desde contenedor:
+
+bash
+Copiar
+Editar
 docker build -t middleware-iot .
-
-# Ejecutar usando las variables de entorno del archivo .env
 docker run --env-file .env middleware-iot
+🔒 Notas de Seguridad
+No subas tu archivo .env con claves privadas.
 
+Usa gitignore correctamente para evitar exponer información sensible.
 
-🧠 Futuras funcionalidades
-Dashboard con métricas y análisis (Streamlit, Dash o Power BI)
+🧠 Uso futuro del log de fallas
+Los registros en el contenedor logs_fallas permitirán:
 
-Detección de anomalías con Machine Learning en tiempo real
+Entrenar modelos de detección de anomalías
 
-Pruebas unitarias para validación de simulaciones
+Realizar trazabilidad y auditoría de eventos
 
-👨‍💻 Desarrollado por
-Alexander Rivas
-GitHub: @arivasbits
-Proyecto académico y de práctica con Azure Cosmos DB, Python y Docker.
+Comparar predicciones del modelo con eventos reales etiquetados
+
+✍️ Autor
+Alexander Rivas – @arivasbits
+Proyecto académico con fines de monitoreo inteligente IoT + IA
