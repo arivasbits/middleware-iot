@@ -1,6 +1,27 @@
-# ⚙️ Middleware IoT – Simulación de Métricas con Fallas para Azure Cosmos DB
+# ⚡ MIDDLEWARE-IOT
 
-Este proyecto es un middleware en Python que simula métricas eléctricas provenientes de un sistema IoT (como LabVIEW) y las envía automáticamente a Azure Cosmos DB. Cada cierto tiempo, también se genera una falla eléctrica aleatoria para alimentar datasets de Machine Learning. Las fallas se registran en un contenedor separado.
+Este proyecto simula la generación de métricas eléctricas (voltajes, corrientes, potencia, etc.) y las envía automáticamente a **Azure Cosmos DB**. Cada cierto tiempo, se simula una falla aleatoria para pruebas de detección de anomalías mediante Machine Learning.
+
+> 🔬 Ideal para pruebas de modelos de ML, visualización de métricas, análisis de datos y validación de fallas.
+
+---
+
+## 🚀 Tecnologías Usadas
+
+- **Python 3.10+**
+- **Azure Cosmos DB**
+- **Docker (opcional)**
+- **uuid, datetime, os, time, random**
+- **Azure Cosmos SDK for Python**
+
+---
+
+## 🧠 ¿Qué hace este proyecto?
+
+- Simula datos de sensores eléctricos cada 5 segundos.
+- Genera fallas aleatorias cada 1 minuto para pruebas.
+- Envía las métricas a un contenedor en Cosmos DB (`Lecturas`).
+- Si se genera una falla, registra un log de la falla en otro contenedor (`logs_fallas`).
 
 ---
 
@@ -19,101 +40,46 @@ middleware-iot/
 ├── README.md                # Documentación del proyecto
 └── requirements.txt         # Dependencias del proyecto
 
-🚀 Tecnologías Utilizadas
-Python 3.10+
+---
 
-Azure Cosmos DB
+## ⚠️ Ejemplo de Falla Simulada
 
-SDK azure-cosmos
-
-Docker (opcional para despliegue)
-
-dotenv para manejo de variables de entorno
-
-⚙️ Funcionalidad Principal
-✅ Generación de métricas IoT (voltajes, corrientes, potencias, etc.)
-
-⚡ Simulación automática de fallas eléctricas (caída de fase, FP bajo, brownout, etc.)
-
-📤 Envío a contenedor de métricas en Azure Cosmos DB
-
-🛑 Registro de fallas en contenedor separado como dataset etiquetado
-
-📦 Desplegable como imagen Docker
-
+```json
 {
-  "id": "c24a1a6e-3abc-4ea1-a6be-843c9cdaab6b",
+  "id": "946feea1-d9b9-4c48-ad6c-720ab47b6e4f",
   "deviceId": "LABVIEW_DEVICE_001",
   "timestamp": "2025-04-03T23:37:02.438603+00:00",
-  "status": "OK",
-  "metrics": [
-    {"name": "Van", "value": 122.4, "unit": "V", "group": "voltages"},
-    {"name": "Ia", "value": 7.23, "unit": "A", "group": "currents"},
-    ...
-  ]
+  "faultCode": "F8",
+  "description": "Falla simulada automáticamente"
 }
 
-📊 Consulta de Fallas desde Azure Cosmos DB
-Consulta básica en Data Explorer para detectar métricas anómalas:
+##📊 Consultas útiles en Cosmos DB
+Consulta para ver registros que contienen posibles fallas:
 
 SELECT *
 FROM c
 WHERE EXISTS (
     SELECT VALUE m
     FROM m IN c.metrics
-    WHERE
-        (m.name = "Vcn" AND m.value = 0) OR
-        (m.name = "Van" AND m.value > 130) OR
-        (m.name = "Vbn" AND m.value < 105) OR
-        (m.name = "voltage_imbalance" AND m.value > 7) OR
-        (m.name = "Ia" AND m.value > 12) OR
-        (m.name = "FP" AND m.value < 0.85)
+    WHERE 
+        (m.name = "Vcn" AND m["value"] = 0) OR
+        (m.name = "Van" AND m["value"] > 130) OR
+        (m.name = "Vbn" AND m["value"] < 105) OR
+        (m.name = "voltage_imbalance" AND m["value"] > 7) OR
+        (m.name = "Ia" AND m["value"] > 12) OR
+        (m.name = "FP" AND m["value"] < 0.85)
 )
-📂 Uso del Proyecto
-Clonar el repositorio
+## Variables de Entorno .env
+Ejemplo de archivo .env:
+COSMOS_URI=https://<tu-endpoint>.documents.azure.com:443/
+COSMOS_KEY=<tu-clave>
+DATABASE_NAME=InvernaderoDB
+CONTAINER_NAME=Lecturas
+LOGS_CONTAINER_NAME=logs_fallas
 
-bash
-Copiar
-Editar
-git clone https://github.com/arivasbits/middleware-iot.git
-cd middleware-iot
-Crear archivo .env basado en el .env.example
-Reemplaza con tus credenciales de Azure Cosmos DB.
-
-Instalar dependencias
-
-bash
-Copiar
-Editar
-pip install -r requirements.txt
-Ejecutar el envío automático
-
-bash
-Copiar
-Editar
-python app/auto_sender.py
-🐳 Docker (Opcional)
-Para ejecutar desde contenedor:
-
-bash
-Copiar
-Editar
+## 🐳 Uso con Docker
 docker build -t middleware-iot .
 docker run --env-file .env middleware-iot
-🔒 Notas de Seguridad
-No subas tu archivo .env con claves privadas.
-
-Usa gitignore correctamente para evitar exponer información sensible.
-
-🧠 Uso futuro del log de fallas
-Los registros en el contenedor logs_fallas permitirán:
-
-Entrenar modelos de detección de anomalías
-
-Realizar trazabilidad y auditoría de eventos
-
-Comparar predicciones del modelo con eventos reales etiquetados
-
-✍️ Autor
-Alexander Rivas – @arivasbits
-Proyecto académico con fines de monitoreo inteligente IoT + IA
+## 👨‍💻 Autor
+Alexander Rivas
+@arivasbits
