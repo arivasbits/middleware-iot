@@ -1,9 +1,14 @@
+# Entornos virtuales
+venv/
+.env
 __pycache__/
 *.pyc
-*.env
-.env
-*.log
-.vscode/
-.env
-test_cosmos_insert.py
+*.pyo
+*.pyd
 
+# Archivos de sistema
+.DS_Store
+
+# Archivos de configuración de editor
+.vscode/
+.idea/
