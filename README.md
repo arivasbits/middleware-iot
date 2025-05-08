@@ -1,4 +1,4 @@
-# ⚡ MIDDLEWARE-IOT
+# MIDDLEWARE-IOT
 
 Este proyecto simula la generación de métricas eléctricas (voltajes, corrientes, potencia, etc.) y las envía automáticamente a **Azure Cosmos DB**. Cada cierto tiempo, se simula una falla aleatoria para pruebas de detección de anomalías mediante Machine Learning.
 
@@ -6,7 +6,7 @@ Este proyecto simula la generación de métricas eléctricas (voltajes, corrient
 
 ---
 
-## 🚀 Tecnologías Usadas
+## Tecnologías Usadas
 
 - **Python 3.10+**
 - **Azure Cosmos DB**
@@ -16,7 +16,7 @@ Este proyecto simula la generación de métricas eléctricas (voltajes, corrient
 
 ---
 
-## 🧠 ¿Qué hace este proyecto?
+## ¿Qué hace este proyecto?
 
 - Simula datos de sensores eléctricos cada 5 segundos.
 - Genera fallas aleatorias cada 1 minuto para pruebas.
@@ -25,7 +25,7 @@ Este proyecto simula la generación de métricas eléctricas (voltajes, corrient
 
 ---
 
-## 📁 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```bash
 middleware-iot/
@@ -42,7 +42,7 @@ middleware-iot/
 
 ---
 
-## ⚠️ Ejemplo de Falla Simulada
+## ⚠Ejemplo de Falla Simulada
 
 ```json
 {
@@ -53,7 +53,7 @@ middleware-iot/
   "description": "Falla simulada automáticamente"
 }
 
-##📊 Consultas útiles en Cosmos DB
+##Consultas útiles en Cosmos DB
 Consulta para ver registros que contienen posibles fallas:
 
 SELECT *
@@ -77,9 +77,9 @@ DATABASE_NAME=InvernaderoDB
 CONTAINER_NAME=Lecturas
 LOGS_CONTAINER_NAME=logs_fallas
 
-## 🐳 Uso con Docker
+## Uso con Docker
 docker build -t middleware-iot .
 docker run --env-file .env middleware-iot
 ## 👨‍💻 Autor
 Alexander Rivas
-@arivasbits
+
